@@ -2,6 +2,7 @@ package com.verdict.verdict;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.cdimascio.dotenv.DotenvEntry;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.core.env.MapPropertySource;
@@ -16,7 +17,7 @@ public class VerdictApplication {
 
 	public static void main(String[] args) {
 		Map<String, Object> env = Dotenv.configure()
-				.directory("src/main/resources/.env")
+				.directory("src/main/resources")
 				.ignoreIfMalformed()
 				.ignoreIfMissing()
 				.load()
@@ -27,7 +28,7 @@ public class VerdictApplication {
 		new SpringApplicationBuilder(VerdictApplication.class)
 				.environment(new StandardEnvironment() {
 					@Override
-					protected void customizePropertySources(MutablePropertySources propertySources) {
+					protected void customizePropertySources(@NotNull MutablePropertySources propertySources) {
 						super.customizePropertySources(propertySources);
 						propertySources.addLast(new MapPropertySource("dotenvProperties", env));
 					}
