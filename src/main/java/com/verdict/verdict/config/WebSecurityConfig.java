@@ -30,16 +30,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
     private final CustomAuthUserService customAuthUserService;
 
-    @Value("${DEV_CLIENT_URL:}")
+    @Value("${front-server.port}")
     private String frontServerUrl;
-    @Value("${NAVER_CLIENT_ID:}")
-    private String naverClientId;
-    @Value("${NAVER_CLIENT_SECRET:}")
-    private String naverClient;
-    @Value("${GOOGLE_CLIENT_ID:}")
-    private String googleClientId;
-    @Value("${GOOGLE_CLIENT_SECRET:}")
-    private String googleClientSecret;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
