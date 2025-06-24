@@ -4,6 +4,10 @@ front-server:
     port: ${DEV_CLIENT_URL}
 
 spring:
+  flyway:
+    default-schema: verdict
+    locations: classpath:db/migration
+    enabled: verdict
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${LOCAL_DB_USERNAME}
@@ -16,7 +20,7 @@ spring:
         format_sql: true # true, false
         show_sql: true # true, false
     hibernate:
-      ddl-auto: validate # create, create-drop, update, validate, none
+      ddl-auto: none # create, create-drop, update, validate, none
   security:
     oauth2:
       client:
