@@ -1,0 +1,32 @@
+version: "3"
+services:
+  springboot:
+    image: 344789575612.dkr.ecr.ap-northeast-2.amazonaws.com/verdict-server:latest
+    container_name: springboot
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    expose:
+      - "8080"
+    networks:
+      - backend
+
+  nginx:
+    image: jonasal/nginx-certbot:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CERTBOT_EMAIL=isjung7057@gmail.com
+      - NGINX_DOMAIN=verlol.site
+    volumes:
+      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
+      - ./nginx/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - springboot
+    networks:
+      - backend
+
+networks:
+  backend:
