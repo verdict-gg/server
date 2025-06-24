@@ -43,6 +43,9 @@ dependencies {
 	implementation 'org.webjars:swagger-ui:5.25.2'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
+	implementation('some:dependency') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 }
 
 tasks.named('test') {
