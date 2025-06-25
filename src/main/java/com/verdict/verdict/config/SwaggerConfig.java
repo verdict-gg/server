@@ -16,7 +16,7 @@ public class SwaggerConfig {
                         .description("Verdict.gg API 명세서")
                         .version("v1.0.0"))
                 .addServersItem(new Server().url("http://localhost:8080").description("로컬 서버"))
-                .addServersItem(new Server().url("https://staging.verdict.gg").description("스테이징 서버"))
+                .addServersItem(new Server().url("https://verlol.site").description("스테이징 서버"))
                 .addServersItem(new Server().url("https://api.verdict.gg").description("프로덕션 서버"));
     }
 }

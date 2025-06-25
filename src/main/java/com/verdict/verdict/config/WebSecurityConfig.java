@@ -1,6 +1,7 @@
 package com.verdict.verdict.config;
 
-import com.verdict.verdict.service.CustomAuthUserService;
+import com.verdict.verdict.service.CustomOAuth2UserService;
+import com.verdict.verdict.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class WebSecurityConfig implements WebMvcConfigurer {
 
-    private final CustomAuthUserService customAuthUserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
 
     @Value("${front-server.port}")
     private String frontServerUrl;
@@ -39,16 +41,16 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .cors(withDefaults())
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl(frontServerUrl + "/", true)
+                        .successHandler(oauth2SuccessHandler)
                         .failureUrl(frontServerUrl + "/login/failure")
                         .userInfoEndpoint(userInfo -> userInfo
-                                // Custom OAuth2UserService can be implemented
-                                .userService(customAuthUserService)
+                                .userService(customOAuth2UserService)
                         )
                 )
                 .logout(logout -> logout
@@ -56,7 +58,6 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 );
         return http.build();
     }
-    // CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -68,7 +69,6 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }
 
 

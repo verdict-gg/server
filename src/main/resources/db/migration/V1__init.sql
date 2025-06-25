@@ -25,7 +25,7 @@ CREATE TABLE user (
                       id BIGINT NOT NULL AUTO_INCREMENT,
                       modified_at DATETIME(6),
                       email VARCHAR(255),
-                      image_url VARCHAR(255),
+                      image_url VARCHAR(1000),
                       password VARCHAR(255),
                       provider VARCHAR(255),
                       provider_id VARCHAR(255),
