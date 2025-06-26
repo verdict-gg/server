@@ -4,10 +4,10 @@ front-server:
   port: https://verdict-gg.vercel.app
 
 spring:
-  flyway:
     default-schema: verdict
     locations: classpath:db/migration
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${LOCAL_DB_USERNAME}
