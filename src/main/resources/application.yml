@@ -1,13 +1,13 @@
 server:
   port: 8080
 front-server:
-    port: ${DEV_CLIENT_URL}
+  port: ${DEV_CLIENT_URL}
 
 spring:
   flyway:
     default-schema: verdict
     locations: classpath:db/migration
-    enabled: verdict
+    enabled: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${LOCAL_DB_USERNAME}
@@ -16,33 +16,30 @@ spring:
   jpa:
     properties:
       hibernate:
-#        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true # true, false
-        show_sql: true # true, false
+        format_sql: true
+        show_sql: true
     hibernate:
-      ddl-auto: none # create, create-drop, update, validate, none
+      ddl-auto: update # create, create-drop, update, validate, none
   security:
     oauth2:
       client:
         registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            scope:
-              - openid
-              - profile
-              - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
+            authorization-grant-type: authorization_code # 코드로 코큰 부여
             scope:
               - name
               - email
               - profile_image
             redirect-uri: "{baseUrl}/login/oauth2/code/naver"
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
@@ -52,9 +49,23 @@ spring:
 
 springdoc:
   api-docs:
-    path: /api-docs
+    enabled: true  # API 문서(`/v3/api-docs`) 활성화 여부 (기본값: true)
+    path: /v3/api-docs  # API 문서의 엔드포인트 변경 (기본값: /v3/api-docs)
+    groups.enabled: true  # 여러 개의 API 그룹을 지원할지 여부
+
   swagger-ui:
-    operationsSorter: method
-    tagsSorter: alpha
-    display-request-duration: true
-    doc-expansion: none
+    enabled: true  # Swagger UI 활성화 여부 (기본값: true)
+    operationsSorter: method  # API 정렬 기준 (alpha: 알파벳순, method: HTTP 메서드 순)
+    tagsSorter: alpha  # 태그 정렬 방식 (alpha: 알파벳순 정렬)
+    display-request-duration: true  # 요청 실행 시간 표시 여부
+    doc-expansion: none  # Swagger UI에서 API 설명의 기본 펼침 상태 (none: 닫힘, list: 펼침, full: 전체 펼침)
+    persistAuthorization: true  # 페이지 새로고침 후에도 Authorization 헤더 유지 여부
+    defaultModelsExpandDepth: -1  # 모델 스키마의 기본 펼침 깊이 (-1이면 모델 펼쳐지지 않음)
+
+  paths-to-match: # OpenAPI 문서에서 포함할 엔드포인트 패턴
+    - /api/**  # /api로 시작하는 모든 경로 포함
+    - /admin/**  # /admin으로 시작하는 모든 경로 포함
+    - /**
+  cache:
+    disabled: true  # OpenAPI 문서의 캐싱 비활성화 (기본값: false)
+  show-actuator: true  # Spring Actuator 엔드포인트를 Swagger UI에 표시할지 여부 (기본값: false)
