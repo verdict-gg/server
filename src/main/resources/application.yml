@@ -7,7 +7,8 @@ spring:
   flyway:
     default-schema: verdict
     locations: classpath:db/migration
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${LOCAL_DB_USERNAME}
@@ -19,7 +20,7 @@ spring:
         format_sql: true
         show_sql: true
     hibernate:
-      ddl-auto: update # create, create-drop, update, validate, none
+      ddl-auto: validate # create, create-drop, update, validate, none
   security:
     oauth2:
       client:
