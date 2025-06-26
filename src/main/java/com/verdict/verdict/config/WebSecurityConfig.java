@@ -32,8 +32,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oauth2SuccessHandler;
 
-    @Value("${front-server.port}")
-    private String frontServerUrl;
+    // @Value("${front-server.port}")
+    private String frontServerUrl="https://verdict-gg.vercel.app";
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
