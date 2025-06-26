@@ -1,7 +1,7 @@
 server:
   port: 8080
 front-server:
-  port: ${DEV_CLIENT_URL}
+  port: https://verdict-gg.vercel.app
 
 spring:
   flyway:
