@@ -18,8 +18,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${front-server.port}")
-    private String frontServerUrl;
+    // @Value("${front-server.port}")
+    private String frontServerUrl = "https://verdict-gg.vercel.app";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
