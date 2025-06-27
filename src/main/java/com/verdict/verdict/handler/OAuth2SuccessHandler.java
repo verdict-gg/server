@@ -30,9 +30,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String name = URLEncoder.encode(user.getName(), "UTF-8");
 
         if (user.isNew()) {
-            log.info("신규! 이메일주소만 뿌림!: {}", user.getUser().getEmail());
-            String email = URLEncoder.encode(user.getUser().getEmail(), "UTF-8");
-            response.sendRedirect(frontServerUrl + "/signup?email=" + email);
             log.info("신규! 이멜,네임 뿌림!: {} {}", user.getUser().getEmail(), user.getName());
             response.sendRedirect(frontServerUrl + "/signup?email=" + email + "&name=" + name);
         } else {
