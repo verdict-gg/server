@@ -66,7 +66,7 @@ public class WebSecurityConfig  {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:3000",
                 "https://verdict-gg.vercel.app",
                 "https://verlol.site"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
