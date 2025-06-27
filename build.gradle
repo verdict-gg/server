@@ -51,9 +51,9 @@ dependencies {
 	// flyway
 	implementation 'org.flywaydb:flyway-mysql'
 
-	implementation('some:dependency') {
-		exclude group: 'commons-logging', module: 'commons-logging'
-	}
+	// implementation('some:dependency') {
+	// 	exclude group: 'commons-logging', module: 'commons-logging'
+	// }
 }
 
 tasks.named('test') {
