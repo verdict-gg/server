@@ -12,7 +12,6 @@ import java.util.Map;
 @ToString
 @Builder
 public class OAuth2UserInfo {
-    private String id;
     private String name;
     private String email;
     private String imageUrl;
@@ -26,27 +25,33 @@ public class OAuth2UserInfo {
             case "naver":
                 return ofNaver(attributes);
             default:
-                throw new RuntimeException("CustomOaut2UserService에서 NameAttributeKey 받는 로직 바꾸면 됨 " + provider);
+                throw new RuntimeException("@@@OAUTH2 User INFO 에러@@@ " + provider);
         }
     }
 
     public static OAuth2UserInfo ofGoogle(Map<String, Object> attributes) {
         return OAuth2UserInfo.builder()
                 .provider("google")
-                .id("google_" + (String) attributes.get("sub"))
+//                .providerId("google_" + (String) attributes.get("sub"))
+                .providerId((String) attributes.get("sub"))
                 .email((String) attributes.get("email"))
                 .name((String) attributes.get("name"))
                 .imageUrl((String) attributes.get("picture"))
                 .build();
     }
+
     public static OAuth2UserInfo ofNaver(Map<String, Object> attributes) {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        Object response = attributes.get("response");
+        if (!(response instanceof Map)) {
+            throw new IllegalStateException("Naver response is not a map");
+        }
+        Map<String, Object> responseMap = (Map<String, Object>) response;
         return OAuth2UserInfo.builder()
                 .provider("naver")
-                .id("naver_"+(String) response.get("id"))
-                .email((String) response.get("email"))
-                .name((String) response.get("name"))
-                .imageUrl((String) response.get("profile_image"))
+                .providerId((String) responseMap.get("id"))
+                .email((String) responseMap.get("email"))
+                .name((String) responseMap.get("name"))
+                .imageUrl((String) responseMap.get("profile_image"))
                 .build();
     }
     public User toEntity() {
