@@ -1,4 +1,5 @@
 HELP.md
+.key
 .env*
 .gradle
 build/

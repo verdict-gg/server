@@ -1,9 +1,10 @@
 server:
   port: 8080
 front-server:
-  port: https://verdict-gg.vercel.app
+  url: https://verdict-gg.vercel.app
 
 spring:
+  flyway:
     default-schema: verdict
     locations: classpath:db/migration
     enabled: true
