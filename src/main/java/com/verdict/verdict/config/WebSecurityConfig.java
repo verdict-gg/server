@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,18 +27,17 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Slf4j
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig  {
+public class WebSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oauth2SuccessHandler;
+    @Value("${front-server.url}")
+    private String frontServerUrl;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    @Value("${front-server.url}")
-    private String frontServerUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,17 +45,21 @@ public class WebSecurityConfig  {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/**","/oauth2/**").permitAll()
+                        .requestMatchers("/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/oaut2/**", "/oauth2/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .cors(withDefaults())
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oauth2SuccessHandler)
-                        .failureUrl(frontServerUrl + "/login/failure")
-                        .userInfoEndpoint(userInfo -> userInfo
+                                .successHandler(oauth2SuccessHandler)
+//                        .failureUrl(frontServerUrl + "/login/failure")
+                                .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false) // 기존 세션 만료시 새 로그인 허용
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/logout").permitAll()
@@ -66,7 +70,7 @@ public class WebSecurityConfig  {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:3000",
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081", "http://localhost:3000",
                 "https://verdict-gg.vercel.app",
                 "https://verlol.site"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
