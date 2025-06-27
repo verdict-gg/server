@@ -49,12 +49,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 ? "sub"
                 : registrationId.equals("naver") ? "response" : "id";
 
-        return !isNewUser
-            ?new DefaultOAuth2User(
-                authorities, // 권한
-                oAuth2User.getAttributes(),
-                nameAttributeKey)
-            :new UserWithSignupStatus(user, true, oAuth2User.getAttributes(), authorities, nameAttributeKey);
+
+        return new UserWithSignupStatus(user, isNewUser, oAuth2User.getAttributes(), authorities, nameAttributeKey);
+
     }
 
     // 사용자 정보를 저장or 업데이트
