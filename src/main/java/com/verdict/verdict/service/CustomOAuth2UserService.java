@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -49,14 +48,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 ? "sub"
                 : registrationId.equals("naver") ? "response" : "id";
 
-        return !isNewUser
-            ?new DefaultOAuth2User(
-                authorities, // 권한
-                oAuth2User.getAttributes(),
-                nameAttributeKey)
-            :new UserWithSignupStatus(user, true, oAuth2User.getAttributes(), authorities, nameAttributeKey);
+        return new UserWithSignupStatus(user, isNewUser, oAuth2User.getAttributes(), authorities, nameAttributeKey);
     }
-
     // 사용자 정보를 저장or 업데이트
     private User saveOrUpdate(OAuth2UserInfo userInfo) {
         User user = userRepository.findByProviderAndProviderId(userInfo.getProvider(), userInfo.getProviderId())
