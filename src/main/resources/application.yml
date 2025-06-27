@@ -1,8 +1,10 @@
+
 server:
   port: 8081
 front-server:
-  url: http://localhost:3000
   url: http://verdict-gg.vercel.app
+  # url: http://localhost:3000
+  # url: http://verdict-gg.vercel.app
 
 spring:
   flyway:
