@@ -1,6 +1,7 @@
 package com.verdict.verdict.service;
 
 import com.verdict.verdict.dto.oauth2.OAuth2UserInfo;
+import com.verdict.verdict.dto.oauth2.UserWithSignupStatus;
 import com.verdict.verdict.entity.User;
 import com.verdict.verdict.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,17 +35,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(registrationId, oAuth2User.getAttributes());
 
+        boolean isNewUser = userRepository.findByProviderAndProviderId(
+                userInfo.getProvider(),
+                userInfo.getProviderId()
+        ).isEmpty();
+
         User user = saveOrUpdate(userInfo);
 
-        Set<GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole().name()));
-        log.info("{} {} {}", authorities,  registrationId, user.getEmail());
+        Set<GrantedAuthority> authorities = Collections.singleton(
+                new SimpleGrantedAuthority(user.getRole().name()));
 
-        String nameAttributeKey = registrationId.equals("google") ? "sub" : registrationId.equals("naver")? "response": "id";
+        String nameAttributeKey = registrationId.equals("google")
+                ? "sub"
+                : registrationId.equals("naver") ? "response" : "id";
 
-        return new DefaultOAuth2User(
+        return !isNewUser
+            ?new DefaultOAuth2User(
                 authorities, // 권한
                 oAuth2User.getAttributes(),
-                nameAttributeKey);
+                nameAttributeKey)
+            :new UserWithSignupStatus(user, true, oAuth2User.getAttributes(), authorities, nameAttributeKey);
     }
 
     // 사용자 정보를 저장or 업데이트
