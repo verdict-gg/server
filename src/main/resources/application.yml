@@ -2,7 +2,7 @@ server:
   port: 8081
 front-server:
   url: http://localhost:3000
-#  url: https://verdict-gg.vercel.app
+  url: http://verdict-gg.vercel.app
 
 spring:
   flyway:
@@ -43,7 +43,7 @@ spring:
               - profile
               - email
               - openid
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
 #            redirect-uri: "https://verlol.site/login/oauth2/code/google"
         provider:
           naver:
