@@ -2,7 +2,6 @@ package com.verdict.verdict.handler;
 
 
 import com.verdict.verdict.dto.oauth2.UserWithSignupStatus;
-import com.verdict.verdict.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -26,8 +26,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         UserWithSignupStatus user = (UserWithSignupStatus) authentication.getPrincipal();
-        String email = URLEncoder.encode(user.getUser().getEmail(), "UTF-8");
-        String name = URLEncoder.encode(user.getName(), "UTF-8");
+        String email = URLEncoder.encode(user.getUser().getEmail(), StandardCharsets.UTF_8);
+        String name = URLEncoder.encode(user.getName(), StandardCharsets.UTF_8);
 
         if (user.isNew()) {
             log.info("신규! 이멜,네임 뿌림!: {} {}", user.getUser().getEmail(), user.getName());
