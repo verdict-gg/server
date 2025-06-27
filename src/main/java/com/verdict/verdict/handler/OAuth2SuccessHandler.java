@@ -21,7 +21,7 @@ import java.net.URLEncoder;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${front-server.url}")
-    private String frontServerUrl = "https://verdict-gg.vercel.app";
+    private String frontServerUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
