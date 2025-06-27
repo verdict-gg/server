@@ -17,7 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-//    @Value("${front-server.port}")
+    // @Value("${front-server.port}")
     private String frontServerUrl = "https://verdict-gg.vercel.app";
 
     @Override
