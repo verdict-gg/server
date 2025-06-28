@@ -69,6 +69,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         if ("ROLE_ADMIN".equals(userWithSignupStatus.getName())) {
             response.sendRedirect(frontServerUrl + "/admin");
         }
+        // 로컬에서들어갈떈 http://localhost:3000/signup어쩌고 하
+        String host = request.getServerName();
+        if("localhost".equals(host)){
+            frontServerUrl ="http://localhost:3000";
+        }
         // 기존회원이 또 로그인 하려는거
         String redirectUrl;
         if (!"NEW".equals(signupStatus)) {
