@@ -6,6 +6,7 @@ import com.verdict.verdict.dto.response.VideoResponse;
 import com.verdict.verdict.dto.response.VideoUploadInitResponse;
 import com.verdict.verdict.entity.Attachment;
 import com.verdict.verdict.entity.AttachmentStatus;
+import com.verdict.verdict.exception.attachment.AttachmentNotFoundException;
 import com.verdict.verdict.infrastructure.S3VideoService;
 import com.verdict.verdict.repository.AttachmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class VideoService {
         // 멀티파트 업로드 완료 처리
         String url = s3VideoService.completeMultipartUpload(request);
         //TODO: AttachmentNotFoundException
-        Attachment attachment = attachmentRepository.findByFileKey(request.getFileKey()).orElseThrow(RuntimeException::new);
+        Attachment attachment = attachmentRepository.findByFileKey(request.getFileKey()).orElseThrow(AttachmentNotFoundException::new);
 
         attachment.updateStatus(AttachmentStatus.UPLOADED);
 
@@ -59,14 +60,14 @@ public class VideoService {
     public void abortVideoUpload(String fileKey, String uploadId) {
         s3VideoService.abortMultipartUpload(fileKey, uploadId);
 
-        Attachment attachment = attachmentRepository.findByFileKey(fileKey).orElseThrow(RuntimeException::new);
+        Attachment attachment = attachmentRepository.findByFileKey(fileKey).orElseThrow(AttachmentNotFoundException::new);
         attachment.updateStatus(AttachmentStatus.FAILED);
     }
 
     // S3 비디오 삭제 처리
     @Transactional
     public void deleteVideo(String fileKey) {
-        Attachment attachment = attachmentRepository.findByFileKey(fileKey).orElseThrow(RuntimeException::new);
+        Attachment attachment = attachmentRepository.findByFileKey(fileKey).orElseThrow(AttachmentNotFoundException::new);
 
         s3VideoService.deleteVideo(fileKey);
 
