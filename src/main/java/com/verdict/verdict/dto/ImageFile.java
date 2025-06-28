@@ -1,5 +1,6 @@
 package com.verdict.verdict.dto;
 
+import com.verdict.verdict.exception.image.ImageException;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +21,7 @@ public class ImageFile {
 
     private void validateNullImage(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new RuntimeException("이미지가 존재하지 않습니다."); //TODO: ImageException
+            throw new ImageException("이미지가 존재하지 않습니다.");
         }
     }
 
