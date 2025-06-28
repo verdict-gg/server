@@ -3,8 +3,6 @@ server:
   port: 8081
 front-server:
   url: http://verdict-gg.vercel.app
-  # url: http://localhost:3000
-  # url: http://verdict-gg.vercel.app
 
 spring:
   flyway:
@@ -36,8 +34,7 @@ spring:
               - name
               - email
               - profile_image
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-#            redirect-uri: "https://verlol.site/login/oauth2/code/naver"
+            redirect-uri: "https://verlol.site/login/oauth2/code/naver"
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
@@ -45,8 +42,7 @@ spring:
               - profile
               - email
               - openid
-            redirect-uri: "{baseUrl}/login/oauth2/code/google"
-#            redirect-uri: "https://verlol.site/login/oauth2/code/google"
+            redirect-uri: "https://verlol.site/login/oauth2/code/google"
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
