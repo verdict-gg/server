@@ -68,7 +68,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
         // 기존회원이 또 로그인 하려는거
         String redirectUrl;
-        if ("NEW".equals(signupStatus)) {
+        if (!"NEW".equals(signupStatus)) {
             redirectUrl = String.format("%s/signup?email=%s",
                     frontServerUrl, encodedEmail, signupStatus);
         } else {
