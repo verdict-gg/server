@@ -4,6 +4,7 @@ import com.verdict.verdict.dto.ImageFile;
 import com.verdict.verdict.dto.ImageUploadResult;
 import com.verdict.verdict.dto.response.ImageResponse;
 import com.verdict.verdict.entity.Attachment;
+import com.verdict.verdict.exception.image.ImageException;
 import com.verdict.verdict.infrastructure.S3ImageService;
 import com.verdict.verdict.repository.AttachmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,7 @@ public class ImageService {
 
     private void validateSizeOfImage(MultipartFile image) {
         if (image == null || image.isEmpty()) {
-            throw new RuntimeException("이미지가 존재하지 않습니다."); //TODO: ImageException
+            throw new ImageException("이미지가 존재하지 않습니다.");
         }
     }
 }

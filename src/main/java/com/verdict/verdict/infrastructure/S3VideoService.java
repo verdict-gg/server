@@ -3,6 +3,7 @@ package com.verdict.verdict.infrastructure;
 import com.verdict.verdict.dto.request.VideoUploadCompletedRequest;
 import com.verdict.verdict.dto.request.VideoUploadInitRequest;
 import com.verdict.verdict.dto.response.VideoUploadInitResponse;
+import com.verdict.verdict.exception.video.VideoException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +66,7 @@ public class S3VideoService {
                     PART_SIZE
             );
         } catch (RuntimeException e) {
-            throw new RuntimeException("S3 멀티파트 업로드 초기화에 실패했습니다. " + e.getMessage()); // TODO: VideoException
+            throw new VideoException("S3 멀티파트 업로드 초기화에 실패했습니다. " + e.getMessage());
         }
     }
 
@@ -107,7 +108,7 @@ public class S3VideoService {
             CompleteMultipartUploadResponse response = s3Client.completeMultipartUpload(completeRequest);
             return response.location(); // 최종 파일의 S3 URL
         } catch (RuntimeException e) {
-            throw new RuntimeException("멀티파트 업로드 완료에 실패했습니다. " + e.getMessage()); // TODO: VideoException
+            throw new VideoException("멀티파트 업로드 완료에 실패했습니다. " + e.getMessage());
         }
     }
 
@@ -121,7 +122,7 @@ public class S3VideoService {
                     .build();
             s3Client.abortMultipartUpload(request);
         } catch (RuntimeException e) {
-            throw new RuntimeException("멀티파트 업로드 중단에 실패했습니다. " + e.getMessage()); // TODO: VideoException
+            throw new VideoException("멀티파트 업로드 중단에 실패했습니다. " + e.getMessage());
         }
     }
 
@@ -136,7 +137,7 @@ public class S3VideoService {
                     .build();
             s3Client.deleteObject(request);
         }catch (RuntimeException e) {
-            throw new RuntimeException("파일 삭제에 실패했습니다. " + e.getMessage()); //TODO: VideoException
+            throw new VideoException("영상 삭제에 실패했습니다. " + e.getMessage()); //
         }
     }
 }

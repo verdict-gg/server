@@ -2,6 +2,7 @@ package com.verdict.verdict.infrastructure;
 
 import com.verdict.verdict.dto.ImageFile;
 import com.verdict.verdict.dto.ImageUploadResult;
+import com.verdict.verdict.exception.image.ImageException;
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
@@ -41,7 +42,7 @@ public class S3ImageService {
 
             return new ImageUploadResult(url, fileKey);
         } catch (IOException | RuntimeException e) {
-            throw new RuntimeException("이미지 업로드에 실패했습니다. " + e.getMessage()); //TODO: ImageException
+            throw new ImageException("이미지 업로드에 실패했습니다. " + e.getMessage());
         }
     }
 
@@ -51,7 +52,7 @@ public class S3ImageService {
         try {
             s3Template.deleteObject(bucket, fileKey);
         } catch (RuntimeException e) {
-            throw new RuntimeException("이미지 삭제에 실패했습니다. " + e.getMessage());
+            throw new ImageException("이미지 삭제에 실패했습니다. " + e.getMessage());
         }
     }
 }
