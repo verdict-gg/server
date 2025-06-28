@@ -69,11 +69,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 기존회원이 또 로그인 하려는거
         String redirectUrl;
         if ("NEW".equals(signupStatus)) {
-            redirectUrl = String.format("%s/signup?email=%s&name=%s&status=%s",
-                    frontServerUrl, encodedEmail, encodedName, signupStatus);
+            redirectUrl = String.format("%s/signup?email=%s",
+                    frontServerUrl, encodedEmail, signupStatus);
         } else {
-            redirectUrl = String.format("%s/signin?email=%s&name=%s",
-                    frontServerUrl, encodedEmail, encodedName);
+            redirectUrl = String.format("%s/email=%s",
+                    frontServerUrl, encodedEmail, signupStatus);
         }
         // 신규/기존 여부에 따라 분기 처리용 쿼리 파라미터 전달
         response.sendRedirect(redirectUrl);
