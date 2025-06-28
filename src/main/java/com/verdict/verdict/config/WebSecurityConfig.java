@@ -1,5 +1,6 @@
 package com.verdict.verdict.config;
 
+import com.verdict.verdict.handler.OAuth2FailureHandler;
 import com.verdict.verdict.handler.OAuth2SuccessHandler;
 import com.verdict.verdict.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,35 +30,27 @@ public class WebSecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oauth2SuccessHandler;
+    private final OAuth2FailureHandler oauth2FailureHandler;
     @Value("${front-server.url}")
     private String frontServerUrl;
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/login/oaut2/**", "/oauth2/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .cors(withDefaults())
-                .oauth2Login(oauth2 -> oauth2
+                .oauth2Login(oauth2Custom -> oauth2Custom
                                 .successHandler(oauth2SuccessHandler)
-//                        .failureUrl(frontServerUrl + "/login/failure")
-                                .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
+                                .failureUrl(oauth2FailureHandler.toString())
+                                .userInfoEndpoint(endpointConfig
+                                        -> endpointConfig.userService(customOAuth2UserService)
                         )
-                )
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false) // 기존 세션 만료시 새 로그인 허용
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/logout").permitAll()
@@ -80,6 +71,7 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }
 
 
