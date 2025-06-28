@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비디오 업로드 테스트</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* Rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #3b82f6; /* Blue-500 */
+            border-radius: 9999px; /* Full rounded */
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<div class="container space-y-6">
+    <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">비디오 업로드 테스트</h1>
+
+    <div class="mb-6">
+        <label for="fileInput" class="block text-gray-700 text-lg font-semibold mb-2">
+            파일 선택:
+        </label>
+        <input type="file" id="fileInput" accept="video/*" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out">
+    </div>
+
+    <div class="space-y-4">
+        <button id="uploadButton"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+            업로드 시작
+        </button>
+        <button id="abortButton"
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300 hidden">
+            업로드 중단
+        </button>
+    </div>
+
+    <div id="progressContainer" class="mt-8 bg-gray-200 rounded-full h-8 overflow-hidden shadow-inner hidden">
+        <div class="progress-bar h-full text-center text-white text-sm font-semibold flex items-center justify-center" id="progressBar">0%</div>
+    </div>
+
+    <div id="statusMessage" class="mt-4 p-4 rounded-xl text-center text-gray-700 bg-blue-50 border border-blue-200 hidden">
+        업로드 상태가 여기에 표시됩니다.
+    </div>
+
+    <div id="resultContainer" class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-sm hidden">
+        <h3 class="text-xl font-bold text-gray-800 mb-3">업로드 결과:</h3>
+        <p class="text-gray-700 break-words">
+            <span class="font-semibold">파일 키:</span> <span id="resultFileKey" class="text-blue-700"></span><br>
+            <span class="font-semibold">최종 URL:</span> <span id="resultUrl" class="text-green-700"></span>
+        </p>
+        <button id="copyUrlButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-300">
+            URL 복사
+        </button>
+    </div>
+
+    <div id="messageBox" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full text-center space-y-4">
+            <p id="messageBoxContent" class="text-lg font-semibold text-gray-800"></p>
+            <button id="messageBoxClose" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300">
+                확인
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    // 중요: 이 URL을 실제 백엔드 API의 기본 URL로 변경해주세요.
+    // 예를 들어, "http://localhost:8080" 또는 "https://your-api-domain.com"
+    const API_BASE_URL = 'http://localhost:8080'; // <-- 여기에 실제 백엔드 URL을 입력하세요!
+    const PART_SIZE = 6 * 1024 * 1024; // 6MB (백엔드 PART_SIZE와 일치)
+
+    let selectedFile = null;
+    let uploadId = null;
+    let fileKey = null;
+    let etags = [];
+    let completedParts = 0;
+    let totalParts = 0;
+    let isAborting = false;
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const abortButton = document.getElementById('abortButton');
+    const statusMessage = document.getElementById('statusMessage');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultFileKey = document.getElementById('resultFileKey');
+    const resultUrl = document.getElementById('resultUrl');
+    const copyUrlButton = document.getElementById('copyUrlButton');
+    const messageBox = document.getElementById('messageBox');
+    const messageBoxContent = document.getElementById('messageBoxContent');
+    const messageBoxClose = document.getElementById('messageBoxClose');
+
+    // 메시지 박스 표시 함수
+    function showMessageBox(message) {
+        messageBoxContent.textContent = message;
+        messageBox.classList.remove('hidden');
+    }
+
+    // 메시지 박스 닫기 함수
+    function closeMessageBox() {
+        messageBox.classList.add('hidden');
+    }
+
+    messageBoxClose.addEventListener('click', closeMessageBox);
+
+    fileInput.addEventListener('change', (event) => {
+        selectedFile = event.target.files[0];
+        if (selectedFile) {
+            statusMessage.textContent = `파일 선택됨: ${selectedFile.name} (${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)`;
+            statusMessage.classList.remove('hidden');
+            uploadButton.disabled = false;
+            resetUploadState();
+        } else {
+            statusMessage.textContent = '파일이 선택되지 않았습니다.';
+            statusMessage.classList.remove('hidden');
+            uploadButton.disabled = true;
+        }
+    });
+
+    uploadButton.addEventListener('click', startUpload);
+    abortButton.addEventListener('click', abortUpload);
+    copyUrlButton.addEventListener('click', copyUrlToClipboard);
+
+    function resetUploadState() {
+        uploadId = null;
+        fileKey = null;
+        etags = [];
+        completedParts = 0;
+        totalParts = 0;
+        isAborting = false;
+        progressBar.style.width = '0%';
+        progressBar.textContent = '0%';
+        progressContainer.classList.add('hidden');
+        resultContainer.classList.add('hidden');
+        abortButton.classList.add('hidden');
+        statusMessage.classList.remove('bg-red-100', 'border-red-300', 'text-red-800');
+        statusMessage.classList.remove('bg-green-100', 'border-green-300', 'text-green-800');
+        statusMessage.classList.add('bg-blue-50', 'border-blue-200', 'text-gray-700');
+    }
+
+    async function startUpload() {
+        if (!selectedFile) {
+            showMessageBox('먼저 동영상 파일을 선택해주세요.');
+            return;
+        }
+
+        uploadButton.disabled = true;
+        abortButton.classList.remove('hidden');
+        progressContainer.classList.remove('hidden');
+        setStatus('업로드 초기화 중...', 'blue');
+
+        try {
+            // 1. 멀티파트 업로드 초기화 요청
+            const initResponse = await fetch(`${API_BASE_URL}/api/attachments/videos/init`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileName: selectedFile.name,
+                    contentType: selectedFile.type,
+                    fileSize: selectedFile.size
+                })
+            });
+
+            if (!initResponse.ok) {
+                const errorData = await initResponse.json();
+                throw new Error(`업로드 초기화 실패: ${errorData.message || initResponse.statusText}`);
+            }
+
+            const data = await initResponse.json();
+            const { uploadId: receivedUploadId, fileKey: receivedFileKey, presignedUrls, partCount } = data.data;
+
+            uploadId = receivedUploadId;
+            fileKey = receivedFileKey;
+            totalParts = partCount;
+            etags = [];
+            completedParts = 0;
+
+            setStatus(`업로드 시작: 총 ${totalParts} 파트`, 'blue');
+
+            // 2. 각 파트 업로드
+            for (let i = 0; i < presignedUrls.length; i++) {
+                if (isAborting) {
+                    setStatus('업로드 중단됨.', 'red');
+                    return;
+                }
+
+                const partNumber = i + 1;
+                const start = i * PART_SIZE;
+                const end = Math.min(start + PART_SIZE, selectedFile.size);
+                const chunk = selectedFile.slice(start, end);
+
+                setStatus(`파트 ${partNumber}/${totalParts} 업로드 중...`, 'blue');
+
+                const uploadPartResponse = await fetch(presignedUrls[i], {
+                    method: 'PUT',
+                    body: chunk,
+                    headers: {
+                        'Content-Type': selectedFile.type // 각 파트의 Content-Type도 중요
+                    }
+                });
+
+                if (!uploadPartResponse.ok) {
+                    throw new Error(`파트 ${partNumber} 업로드 실패: ${uploadPartResponse.statusText}`);
+                }
+
+                const etag = uploadPartResponse.headers.get('ETag');
+                etags.push({ partNumber: partNumber, eTag: etag.replace(/"/g, '') }); // ETag에서 큰따옴표 제거
+
+                completedParts++;
+                updateProgress();
+            }
+
+            // 3. 멀티파트 업로드 완료 요청
+            setStatus('업로드 완료 요청 중...', 'blue');
+            const completeResponse = await fetch(`${API_BASE_URL}/api/attachments/videos/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uploadId: uploadId,
+                    fileKey: fileKey, // fileKey도 함께 보냄
+                    completedParts: etags
+                })
+            });
+
+            if (!completeResponse.ok) {
+                const errorData = await completeResponse.json();
+                throw new Error(`업로드 완료 실패: ${errorData.message || completeResponse.statusText}`);
+            }
+
+            // 응답 객체 구조가 변경되었습니다. data.videoUrl에서 최종 URL을 추출합니다.
+            const completeData = await completeResponse.json();
+            const finalS3Url = completeData.data.videoUrl; // <-- 이 부분을 수정했습니다.
+
+            setStatus('업로드 완료! 🎉', 'green');
+            showResult(fileKey, finalS3Url);
+
+        } catch (error) {
+            setStatus(`업로드 오류: ${error.message}`, 'red');
+            showMessageBox(`업로드 중 오류 발생: ${error.message}`);
+            console.error('업로드 실패:', error);
+            if (uploadId && !isAborting) {
+                // 오류 발생 시에도 업로드 중단 로직 호출 (선택 사항, 클라이언트에서만 필요할 경우)
+                // await abortUploadOnFailure(fileKey, uploadId);
+            }
+        } finally {
+            uploadButton.disabled = false;
+            abortButton.classList.add('hidden');
+        }
+    }
+
+    async function abortUpload() {
+        if (!uploadId || !fileKey) {
+            showMessageBox('중단할 업로드가 없습니다.');
+            return;
+        }
+
+        isAborting = true; // 업로드 루프 중단 플래그 설정
+        setStatus('업로드 중단 요청 중...', 'red');
+        uploadButton.disabled = true;
+        abortButton.disabled = true;
+
+        try {
+            const abortRequest = await fetch(`${API_BASE_URL}/api/attachments/videos/abort`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileKey: fileKey,
+                    uploadId: uploadId
+                })
+            });
+
+            if (!abortRequest.ok) {
+                const errorData = await abortRequest.json();
+                throw new Error(`업로드 중단 실패: ${errorData.message || abortRequest.statusText}`);
+            }
+
+            setStatus('업로드가 성공적으로 중단되었습니다.', 'red');
+            resetUploadState(); // 상태 초기화
+        } catch (error) {
+            setStatus(`업로드 중단 오류: ${error.message}`, 'red');
+            showMessageBox(`업로드 중단 중 오류 발생: ${error.message}`);
+            console.error('업로드 중단 실패:', error);
+        } finally {
+            uploadButton.disabled = false;
+            abortButton.disabled = false;
+            abortButton.classList.add('hidden');
+        }
+    }
+
+    function updateProgress() {
+        const percentage = totalParts > 0 ? (completedParts / totalParts) * 100 : 0;
+        progressBar.style.width = `${percentage.toFixed(0)}%`;
+        progressBar.textContent = `${percentage.toFixed(0)}%`;
+    }
+
+    function setStatus(message, type = 'blue') {
+        statusMessage.textContent = message;
+        statusMessage.classList.remove('hidden', 'bg-blue-50', 'border-blue-200', 'bg-red-100', 'border-red-300', 'text-red-800', 'bg-green-100', 'border-green-300', 'text-green-800');
+        if (type === 'blue') {
+            statusMessage.classList.add('bg-blue-50', 'border-blue-200', 'text-gray-700');
+        } else if (type === 'red') {
+            statusMessage.classList.add('bg-red-100', 'border-red-300', 'text-red-800');
+        } else if (type === 'green') {
+            statusMessage.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
+        }
+    }
+
+    function showResult(fileKey, url) {
+        resultContainer.classList.remove('hidden');
+        resultFileKey.textContent = fileKey;
+        resultUrl.textContent = url;
+    }
+
+    function copyUrlToClipboard() {
+        const url = resultUrl.textContent;
+        if (url) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showMessageBox('URL이 클립보드에 복사되었습니다!');
+            } catch (err) {
+                showMessageBox('URL 복사 실패: 브라우저가 지원하지 않거나 권한이 없습니다.');
+                console.error('클립보드 복사 실패:', err);
+            }
+            document.body.removeChild(tempInput);
+        }
+    }
+
+    // 초기 상태 설정
+    uploadButton.disabled = true; // 파일 선택 전에는 비활성화
+    setStatus('업로드를 시작하려면 동영상 파일을 선택하세요.', 'blue');
+</script>
+</body>
+</html>
