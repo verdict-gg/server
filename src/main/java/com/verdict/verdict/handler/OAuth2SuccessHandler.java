@@ -36,20 +36,24 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         Map<String, Object> responseMap = (Map<String, Object>) attributes.get("response");
 
 
-        String email = (String) userWithSignupStatus.getName();
+        String id = String.valueOf(responseMap.get("id"));
         String name = (String) responseMap.get("name");
+        String email = userWithSignupStatus.getName();
+        String profileImage = (String) responseMap.get("profile_image"); // 네이버/구글에 따라 키 다를 수 있음
 
-        String encodedEmail = encode(email != null ? email : "", StandardCharsets.UTF_8);
+        String encodedId = encode(id != null ? id : "", StandardCharsets.UTF_8);
         String encodedName = encode(name != null ? name : "", StandardCharsets.UTF_8);
+        String encodedEmail = encode(email != null ? email : "", StandardCharsets.UTF_8);
+        String encodedProfileImage = encode(profileImage != null ? profileImage : "", StandardCharsets.UTF_8);
 
 
         //구글 로그인이면 OIDC로.
         if (delegate instanceof OidcUser) {
             log.info("구글 OIDC 로그인 : {}", encodedEmail);
-            // 구글 전용 추가 로직 작성
+            // 구글 전용
         } else {
             log.info("네이버 OAuth2 로그인: {}", encodedEmail);
-            // 네이버 전용 추가 로직 작성
+            // 네이버 전용
         }
 
 
@@ -62,18 +66,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 
         // 관리자면 메인, 아니면 /signup으로 리다이렉트 나머진 다 유저롤 /
-
         if ("ROLE_ADMIN".equals(userWithSignupStatus.getName())) {
             response.sendRedirect(frontServerUrl + "/admin");
         }
         // 기존회원이 또 로그인 하려는거
         String redirectUrl;
         if ("NEW".equals(signupStatus)) {
-            redirectUrl = String.format("%s/signup?email=%s",
-                    frontServerUrl, encodedEmail, signupStatus);
+            redirectUrl = String.format("%s/signup?id=%s&email=%s&profileImage=%s",
+                    frontServerUrl, encodedId, encodedEmail, encodedProfileImage);
         } else {
-            redirectUrl = String.format("%s/email=%s",
-                    frontServerUrl, encodedEmail, signupStatus);
+            redirectUrl = String.format("%s/id=%s&email=%s&profileImage=%s",
+                    frontServerUrl, encodedId, signupStatus, encodedProfileImage);
         }
         // 신규/기존 여부에 따라 분기 처리용 쿼리 파라미터 전달
         response.sendRedirect(redirectUrl);
