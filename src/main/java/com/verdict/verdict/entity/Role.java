@@ -1,17 +1,14 @@
 package com.verdict.verdict.entity;
 
 import lombok.Getter;
-
-import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum Role {
-    ROLE_USER, ROLE_ADMIN;
-
-    public static Role of(String role) {
-        return Arrays.stream(Role.values())
-                .filter(r -> r.name().equalsIgnoreCase(role))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("유효하지 않은 Role"));
-    }
+    NOT_REGISTERED("ROLE_NOT_REGISTERED","외원가입 이전 사용자"),
+    USER("ROLE_USER","일반 사용자"),
+    ADMIN("ROLE_ADMIN","관리자");
+    private final String key;
+    private final String title;
 }

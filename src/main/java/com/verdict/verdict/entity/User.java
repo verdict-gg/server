@@ -1,5 +1,6 @@
 package com.verdict.verdict.entity;
 
+import com.verdict.verdict.dto.oauth2.ProviderInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,8 +16,18 @@ public class User extends BaseEntity{
 
     private String email;
 
+    @Column(unique = true, length = 20)
+    private String nickname;
+
+    @Column(unique = true, length = 100)
+    private String information;
+
     @NotNull
     private String identifier;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ProviderInfo providerInfo;
 
     @Column(name = "image_url",length = 1000)
     private String imageUrl;
@@ -25,18 +36,29 @@ public class User extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String provider;
 
-    private String providerId;
-
+//    private String vote;
 
     @Builder
-    public User(String email,String identifier, String imageUrl, Role role, String provider, String providerId) {
-        this.email = email;
+    public User(ProviderInfo providerInfo, String identifier, Role role, String nickname, String information
+                ) {
+        this.providerInfo = providerInfo;
         this.identifier = identifier;
-        this.imageUrl = imageUrl;
         this.role = role;
-        this.provider = provider;
-        this.providerId = providerId;
+//        this.nickname = nickname;
+//        this.information = information;
+
+    }
+    /*========= Additional Service ===========*/
+
+    private String providerId;
+    public boolean isRegistered() {
+        return this.role != Role.NOT_REGISTERED;
+    }
+
+    public void updateUser(String nickname, String information, String imageUrl) {
+        this.nickname = nickname;
+        this.information = information;
+        this.imageUrl = imageUrl;
     }
 }

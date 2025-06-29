@@ -3,6 +3,7 @@ package com.verdict.verdict.repository;
 import com.verdict.verdict.dto.oauth2.ProviderInfo;
 import com.verdict.verdict.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -12,9 +13,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByIdentifier(String identifier);
     Optional<User> findByNickname(String nickname);
+    @Query("select u from User u where u.identifier = :identifier")
     List<User> findAllByIdentifier(String identifier);
-
-    Optional<User> findByOAuth2Info(@Param("identifier") String identifier,
+    @Query("select u from User u where u.identifier = :identifier and u.providerInfo = :providerInfo")
+    Optional<User> findByOAuthInfo(@Param("identifier") String identifier,
                                    @Param("providerInfo") ProviderInfo providerInfo);
+
 
 }
