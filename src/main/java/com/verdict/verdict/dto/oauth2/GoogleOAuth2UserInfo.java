@@ -17,7 +17,7 @@ public class GoogleOAuth2UserInfo extends AbstractOAuth2UserInfo {
     }
 
     /**
-     * @return "sub"
+     * @return "user@gmail."
      */
     @Override
     public String getUserIdentifier() {

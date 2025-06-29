@@ -1,5 +1,6 @@
 url:
-  base: http://localhost:3000
+  front: http://localhost:3000
+  base: http://localhost:8081
   ngrok: https://lizard-fair-cougar.ngrok-free.app
   path:
     login: login
@@ -29,7 +30,7 @@ spring:
         format_sql: true
         show_sql: true
     hibernate:
-      ddl-auto: none # create, create-drop, update, validate, none
+      ddl-auto: update # create, create-drop, update, validate, none
   security:
     oauth2:
       client:

@@ -28,18 +28,20 @@ import java.util.Optional;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
 
+
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
+
+        String providerCode = userRequest.getClientRegistration().getRegistrationId();
         // OAuth2 PK_id: "users name from user info response"
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
         log.info("userNameAttributeName {}", userNameAttributeName);
         // OAuth2 loginApi provider : google , naver , lol
-        String providerCode = userRequest.getClientRegistration().getRegistrationId();
         log.info("providerCode: {}", providerCode);
         ProviderInfo providerInfo = ProviderInfo.from(providerCode);
         // 위에서 받은 데이터 attributesMap 에다 싹 담아
@@ -65,9 +67,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     .identifier(userIdentifier)
                     .role(Role.NOT_REGISTERED)
                     .providerInfo(providerInfo)
+                    .nickname("sub")
+                    .information("sub")
                     .build();
             return userRepository.save(unregisteredUser);
-        } //select * from user where identifier = 'identifier';
+            //select * from user where identifier = 'identifier';
+        } else{
+        }
         // insert ignore into user (identifier) values ('identifier') on duplicate key update name=value(identifier)
         return optionalUser.get();
     }

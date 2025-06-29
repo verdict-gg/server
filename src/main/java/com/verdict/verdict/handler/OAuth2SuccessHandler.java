@@ -34,15 +34,20 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         this.userRepository = userRepository;
         this.BASE_URL = BASE_URL;
         this.NGROK_URL = NGROK_URL;
-        this.SIGNUP_URL = NGROK_URL + SIGNUP_PATH;
-        log.info("success urls {} || {}  || {}", BASE_URL,NGROK_URL,SIGNUP_URL);
+        this.SIGNUP_URL = BASE_URL +"/"+ SIGNUP_PATH;
+        log.info("success urls {}/login || {}  || {}", BASE_URL,NGROK_URL,SIGNUP_URL);
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         // Http request 온거 인증은 클라 라이브러리가 알아서 하고 난 identifier에 담아서 엔티티 조회&검사하고
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
         String identifier = oAuth2User.getName();
+//        if(identifier == null) {
+//
+//        }
+
 
         User user = userRepository.findByIdentifier(identifier)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -51,6 +56,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
     private String getRedirectUrlByRole(Role role, String identifier) {
+
         if (role == Role.NOT_REGISTERED) {
             log.info("NEW user ->> {}",SIGNUP_URL);
             return UriComponentsBuilder.fromUriString(SIGNUP_URL)

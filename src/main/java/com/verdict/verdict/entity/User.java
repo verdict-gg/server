@@ -23,6 +23,7 @@ public class User extends BaseEntity{
     private String information;
 
     @NotNull
+    @Column(name = "identifier",length = 1000)
     private String identifier;
 
     @NotNull
@@ -32,8 +33,9 @@ public class User extends BaseEntity{
     @Column(name = "image_url",length = 1000)
     private String imageUrl;
 
-    @NotNull
+    @NotNull()
     @Enumerated(EnumType.STRING)
+    @Column(length = 100)
     private Role role;
 
 
@@ -45,8 +47,8 @@ public class User extends BaseEntity{
         this.providerInfo = providerInfo;
         this.identifier = identifier;
         this.role = role;
-//        this.nickname = nickname;
-//        this.information = information;
+        this.nickname = nickname;
+        this.information = information;
 
     }
     /*========= Additional Service ===========*/
