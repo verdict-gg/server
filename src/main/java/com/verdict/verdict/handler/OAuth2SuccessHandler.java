@@ -25,6 +25,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${front-server.url}")
     private String frontServerUrl;
+    private String tempUrl = "https://lizard-fair-cougar.ngrok-free.app"
+    
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -78,10 +80,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String redirectUrl;
         if (!"NEW".equals(signupStatus)) {
             redirectUrl = String.format("%s/signup?id=%s&email=%s&profileImage=%s",
-                    frontServerUrl, encodedId, encodedEmail, encodedProfileImage);
+                                        
+                    tempUrl, encodedId, encodedEmail, encodedProfileImage);
         } else {
             redirectUrl = String.format("%s/id=%s&email=%s&profileImage=%s",
-                    frontServerUrl, encodedId, signupStatus, encodedProfileImage);
+                                        
+                    tempUrl, encodedId, signupStatus, encodedProfileImage);
         }
         // 신규/기존 여부에 따라 분기 처리용 쿼리 파라미터 전달
         response.sendRedirect(redirectUrl);
