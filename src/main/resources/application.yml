@@ -29,7 +29,7 @@ spring:
         format_sql: true
         show_sql: true
     hibernate:
-      ddl-auto: validate # create, create-drop, update, validate, none
+      ddl-auto: none # create, create-drop, update, validate, none
   security:
     oauth2:
       client:

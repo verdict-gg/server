@@ -9,8 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
-public final class EncryptUtil {
-    private final AesBytesEncryptor encryptor;
+public  class EncryptUtil {
+    private AesBytesEncryptor encryptor;
 
     public String encrypt(String target) {
         byte[] encrypt = encryptor.encrypt(target.getBytes(StandardCharsets.UTF_8));

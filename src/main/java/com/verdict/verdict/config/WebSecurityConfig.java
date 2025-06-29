@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
-@Order(1)
+//@Order(1)
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Slf4j
@@ -42,8 +41,8 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 이거 커스텀해서 로컬 포트로 리스폰
                                 .requestMatchers(PERMITTED_URI).permitAll()
-//                                .anyRequest().hasAnyRole(PERMITTED_ROLES)
-                        .anyRequest().permitAll()
+                                .anyRequest().hasAnyRole(PERMITTED_ROLES)
+//                        .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2Custom -> oauth2Custom
                         .successHandler(oauth2SuccessHandler)
