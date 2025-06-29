@@ -25,7 +25,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${front-server.url}")
     private String frontServerUrl;
-    private String tempUrl = "https://lizard-fair-cougar.ngrok-free.app"
+    private String tempUrl = "https://lizard-fair-cougar.ngrok-free.app";
     
 
     @Override
