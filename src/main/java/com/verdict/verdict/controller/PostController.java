@@ -1,7 +1,7 @@
 package com.verdict.verdict.controller;
 
-import com.verdict.verdict.dto.ApiResponse;
-import com.verdict.verdict.dto.response.PostExampleResponse;
+import com.verdict.verdict.global.dto.ApiResponse;
+import com.verdict.verdict.global.response.PostExampleResponse;
 import com.verdict.verdict.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
