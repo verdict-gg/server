@@ -1,4 +1,4 @@
-package com.verdict.verdict.config;
+package com.verdict.verdict.global.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

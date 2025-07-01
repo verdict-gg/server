@@ -1,4 +1,4 @@
-package com.verdict.verdict.dto.response;
+package com.verdict.verdict.global.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.verdict.verdict.dto;
+package com.verdict.verdict.global.dto;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

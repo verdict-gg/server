@@ -1,41 +1,70 @@
 package com.verdict.verdict.entity;
 
+import com.verdict.verdict.global.constants.ProviderInfo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-/* User 엔티티는 사용자의 정보를 저장하는 엔티티입니다.
- * 이메일, 비밀번호, 이미지 URL, 역할, 프로바이더 정보 등을 포함합니다.
- * OAuth2 인증을 통해 사용자를 관리하며, 각 필드는 적절한 제약 조건을 가집니다.
- * oauth api 제공 정보는 이름,메일,프사만 받음.
- */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter
 @Entity
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String email;
-
-    @Column(name = "image_url",length = 1000)
-    private String imageUrl;
-
+    @NotNull()
     @Enumerated(EnumType.STRING)
+    @Column(length = 100)
     private Role role;
 
-    private String provider;
+    @NotNull
+    @Column(name = "identifier", length = 1000, unique = true)
+    private String identifier;
 
-    private String providerId;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ProviderInfo providerInfo;
 
+    private String email; // OAuth2 연결 계정
+
+    @Column(unique = true, length = 20)
+    private String nickname;
+
+    @Column(length = 100)
+    private String information;
+
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
+    //    private String vote;
+    /*========= Additional Service ===========*/
 
     @Builder
-    public User(String email, String imageUrl, Role role, String provider, String providerId) {
+    public User(ProviderInfo providerInfo, String identifier, String email, Role role, String nickname, String information, String imageUrl) {
+        this.providerInfo = providerInfo;
+        this.identifier = identifier;
         this.email = email;
-        this.imageUrl = imageUrl;
         this.role = role;
-        this.provider = provider;
-        this.providerId = providerId;
+        this.nickname = nickname;
+        this.information = information;
+        this.imageUrl = imageUrl;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
+    public void updateUser(String nickname, String email) {
+        this.email = email; // email 필드 업데이트
+        this.nickname = nickname;
+        this.imageUrl = imageUrl;
+    }
+
+
+
+    public boolean isRegistered() {
+       return this.role != Role.NOT_REGISTERED;
     }
 }
