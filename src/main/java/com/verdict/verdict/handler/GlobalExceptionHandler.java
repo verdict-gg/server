@@ -1,7 +1,8 @@
 package com.verdict.verdict.handler;
 
-import com.verdict.verdict.dto.ApiResponse;
+
 import com.verdict.verdict.exception.*;
+import com.verdict.verdict.global.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

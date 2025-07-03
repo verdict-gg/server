@@ -1,12 +1,13 @@
 package com.verdict.verdict.controller;
 
-import com.verdict.verdict.dto.ApiResponse;
+
 import com.verdict.verdict.dto.request.VideoAbortRequest;
 import com.verdict.verdict.dto.request.VideoUploadCompletedRequest;
 import com.verdict.verdict.dto.request.VideoUploadInitRequest;
 import com.verdict.verdict.dto.response.ImageResponse;
 import com.verdict.verdict.dto.response.VideoResponse;
 import com.verdict.verdict.dto.response.VideoUploadInitResponse;
+import com.verdict.verdict.global.dto.ApiResponse;
 import com.verdict.verdict.service.ImageService;
 import com.verdict.verdict.service.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
