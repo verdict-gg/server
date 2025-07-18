@@ -21,8 +21,8 @@ services:
       - CERTBOT_EMAIL=isjung7057@gmail.com
       - NGINX_DOMAIN=verlol.site
     volumes:
-      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
-      - ./nginx/letsencrypt:/etc/letsencrypt
+      - ../nginx/user_conf.d:/etc/nginx/user_conf.d
+      - ../nginx/letsencrypt:/etc/letsencrypt
     depends_on:
       - springboot
     networks:

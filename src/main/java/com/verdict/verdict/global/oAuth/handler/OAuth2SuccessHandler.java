@@ -26,20 +26,17 @@ import static com.verdict.verdict.global.entities.UserRole.NOT_REGISTERED;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final String BASE_URL;
-    private final String NGROK_URL;
     private final String SIGNUP_URL;
     private final UserRepository userRepository;
 
     public OAuth2SuccessHandler(@Value("${url.front}") String BASE_URL,
-                                @Value("${url.ngrok}") String NGROK_URL,
                                 @Value("${url.path.signup}") String SIGNUP_PATH,
                                 UserRepository userRepository) {
         this.userRepository = userRepository;
         this.BASE_URL = BASE_URL;
-        this.NGROK_URL = NGROK_URL;
         this.SIGNUP_URL = BASE_URL +"/"+ SIGNUP_PATH;
 //        this.SIGNUP_URL = NGROK_URL + SIGNUP_PATH;
-        log.info("success urls {}/login || {}  || {}", BASE_URL,NGROK_URL,SIGNUP_URL);
+        log.info("success urls {}/login || {}", BASE_URL,SIGNUP_URL);
     }
 
     @Override

@@ -1,37 +1,20 @@
-import: apidocs.yml
-
-
-url:
-  front: http://localhost:3000
-  base: http://localhost:8081
-  ngrok: https://lizard-fair-cougar.ngrok-free.app
-  path:
-    login: login
-    signup: signup
-server:
-  port: 8081
-front-server:
-  url: http://verdict-gg.vercel.app
-
+spring:
+  profiles:
+    group:
+      local: "local,common"
+      dev:  "dev,common"
+      prod: "prod,common"
+    active: local # local, dev, prod
+---
 spring:
   config:
-    import: optional:file:src/main/resources/local.env[.properties]
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      password: ${REDIS_PASSWORD}
-      database: ${REDIS_DATABASE}
-      port: 6379
+    activate:
+      on-profile: common
   flyway:
     default-schema: verdict
     locations: classpath:resources/db/migration
     enabled: true
     baseline-on-migrate: true
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${LOCAL_DB_USERNAME}
-    password: ${LOCAL_DB_PASSWORD}
-    url: ${LOCAL_DB_URL}
   jpa:
     properties:
       hibernate:
@@ -51,7 +34,7 @@ spring:
               - email
               - name
               - profile_image
-            redirect-uri: "http://localhost:8081/login/oauth2/code/naver"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
@@ -59,7 +42,7 @@ spring:
               - email
               - profile
               - openid
-            redirect-uri: "http://localhost:8081/login/oauth2/code/google"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
         provider:
           naver:
             authorization-uri: https://nid.naver.com/oauth2.0/authorize
@@ -71,17 +54,32 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
-  cloud:
-    aws:
-      credentials:
-        access-key: ${AWS_ACCESS_KEY_ID}
-        secret-key: ${AWS_SECRET_ACCESS_KEY}
-      region:
-        static: ${AWS_REGION}
-      s3:
-        bucket: ${AWS_S3_BUCKET}
 jwt:
   access-secret: ${JWT_ACCESS_SECRET}
   refresh-secret: ${JWT_REFRESH_SECRET}
   access-expiration: 3600000
   refresh-expiration: 1209600000
+
+
+springdoc:
+  api-docs:
+    enabled: true  # API 문서(`/v3/api-docs`) 활성화 여부 (기본값: true)
+    path: /v3/api-docs  # API 문서의 엔드포인트 변경 (기본값: /v3/api-docs)
+    groups.enabled: true  # 여러 개의 API 그룹을 지원할지 여부
+
+  swagger-ui:
+    enabled: true  # Swagger UI 활성화 여부 (기본값: true)
+    operationsSorter: method  # API 정렬 기준 (alpha: 알파벳순, method: HTTP 메서드 순)
+    tagsSorter: alpha  # 태그 정렬 방식 (alpha: 알파벳순 정렬)
+    display-request-duration: true  # 요청 실행 시간 표시 여부
+    doc-expansion: none  # Swagger UI에서 API 설명의 기본 펼침 상태 (none: 닫힘, list: 펼침, full: 전체 펼침)
+    persistAuthorization: true  # 페이지 새로고침 후에도 Authorization 헤더 유지 여부
+    defaultModelsExpandDepth: -1  # 모델 스키마의 기본 펼침 깊이 (-1이면 모델 펼쳐지지 않음)
+
+  paths-to-match: # OpenAPI 문서에서 포함할 엔드포인트 패턴
+    - /api/**  # /api로 시작하는 모든 경로 포함
+    - /admin/**  # /admin으로 시작하는 모든 경로 포함
+    - /**
+  cache:
+    disabled: true  # OpenAPI 문서의 캐싱 비활성화 (기본값: false)
+  show-actuator: true  # Spring Actuator 엔드포인트를 Swagger UI에 표시할지 여부 (기본값: false)

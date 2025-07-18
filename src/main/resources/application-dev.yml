@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      port: 6379
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region:
+        static: ${AWS_REGION}
+      s3:
+        bucket: ${AWS_S3_BUCKET}
+url:
+  front: http://localhost:3000
+  base: http://localhost:8081
+  ngrok: https://lizard-fair-cougar.ngrok-free.app
+  path:
+    login: login
+    signup: signup
+server:
+  port: 8081
+front-server:
+  url: http://verdict-gg.vercel.app
