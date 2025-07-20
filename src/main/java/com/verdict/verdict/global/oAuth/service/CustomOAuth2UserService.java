@@ -46,8 +46,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth(providerInfo, attributes);
         String userIdentifier = oAuth2UserInfo.getUserIdentifier();
+        String email = oAuth2UserInfo.getEmail();
         log.info("OAuth2 ||| 로그인요청 code: {}, identifier: {}", providerInfo, oAuth2UserInfo.getUserIdentifier());
-        User user = getUser(userIdentifier, providerInfo);
+        User user = getUser(userIdentifier, email, providerInfo);
         log.info("user DB검증 ||| providerInfo: {}, auth: {}", userIdentifier, user.getUserRole());
         log.info("USER 권 한 ||| {}", user.getUserRole());
 
@@ -55,17 +56,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return new UserPrincipal(user, attributes, userNameAttributeNameFromRequest);
     }
 
-    private User getUser(String userIdentifier, ProviderInfo providerInfo) {
+    private User getUser(String userIdentifier, String email, ProviderInfo providerInfo) {
         Optional<User> optionalUser = userRepository.findByOAuthInfo(userIdentifier, providerInfo);
 
         if (optionalUser.isEmpty()) {
             User unregisteredUser = User.builder()
                     .identifier(userIdentifier)
+                    .email(email)
                     .userRole(UserRole.NOT_REGISTERED)
                     .providerInfo(providerInfo)
                     .build();
-            log.info("NEW USER: ID {}, MAIL {}", unregisteredUser.getIdentifier(), unregisteredUser.getEmail());
-            return userRepository.save(unregisteredUser);
+            User savedUser = userRepository.save(unregisteredUser);
+            log.info("NEW USER SAVED: ID {}, MAIL {}, Provider {}, Role {}", savedUser.getIdentifier(), savedUser.getEmail(), savedUser.getProviderInfo(), savedUser.getUserRole());
+            return savedUser;
         }
         return optionalUser.get();
     }
